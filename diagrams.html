@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Proposal Diagrams</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    h1, h2 {
+      color: #2c3e50;
+    }
+    canvas {
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 40px;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Proposal Diagrams</h1>
+    
+    <h2>Project Diagram</h2>
+    <canvas id="projectDiagram" width="900" height="500"></canvas>
+    
+    <h2>UX Wireframes</h2>
+    <canvas id="uxWireframe" width="900" height="500"></canvas>
+    
+    <h2>Data Flow Chart</h2>
+    <canvas id="dataFlowChart" width="900" height="500"></canvas>
+  </div>
+  
+  <script>
+    function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+      const words = text.split(" ");
+      let line = "";
+      const lines = [];
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + " ";
+        const metrics = ctx.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+          lines.push(line);
+          line = words[n] + " ";
+        } else {
+          line = testLine;
+        }
+      }
+      lines.push(line);
+      return lines;
+    }
+    
+    function drawBox(ctx, x, y, width, height, text, fillColor, textColor = "#fff") {
+      ctx.fillStyle = fillColor;
+      ctx.strokeStyle = "#2c3e50";
+      ctx.lineWidth = 2;
+      ctx.fillRect(x, y, width, height);
+      ctx.strokeRect(x, y, width, height);
+      ctx.font = 'bold 14px Arial';
+      ctx.fillStyle = textColor;
+      const padding = 5;
+      const availableWidth = width - padding * 2;
+      const lineHeight = 18;
+      const lines = drawWrappedText(ctx, text, 0, 0, availableWidth, lineHeight);
+      
+      // Calculate starting y to center the text vertically
+      const textHeight = lines.length * lineHeight;
+      let startY = y + (height - textHeight) / 2 + lineHeight - 4;
+      
+      lines.forEach(line => {
+        ctx.textAlign = "center";
+        ctx.fillText(line.trim(), x + width / 2, startY);
+        startY += lineHeight;
+      });
+    }
+    
+    function drawArrow(ctx, fromX, fromY, toX, toY) {
+      ctx.beginPath();
+      ctx.moveTo(fromX, fromY);
+      ctx.lineTo(toX, toY);
+      ctx.strokeStyle = "#34495e";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      const headlen = 10;
+      const angle = Math.atan2(toY - fromY, toX - fromX);
+      ctx.beginPath();
+      ctx.moveTo(toX, toY);
+      ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI/6), toY - headlen * Math.sin(angle - Math.PI/6));
+      ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI/6), toY - headlen * Math.sin(angle + Math.PI/6));
+      ctx.lineTo(toX, toY);
+      ctx.fillStyle = "#34495e";
+      ctx.fill();
+    }
+    
+    (function drawProjectDiagram() {
+      const canvas = document.getElementById('projectDiagram');
+      const ctx = canvas.getContext('2d');
+      const boxes = [
+        { x: 30,  y: 50,  w: 180, h: 70, text: "User Interface (Frontend)", color: "#1abc9c" },
+        { x: 250, y: 50,  w: 180, h: 70, text: "API Gateway", color: "#3498db" },
+        { x: 250, y: 140, w: 220, h: 70, text: "Authentication & User Management", color: "#9b59b6" },
+        { x: 250, y: 240, w: 180, h: 70, text: "Data Ingestion", color: "#e67e22" },
+        { x: 250, y: 340, w: 200, h: 70, text: "Data Cleaning & Pre-Processing", color: "#e74c3c" },
+        { x: 480, y: 240, w: 220, h: 70, text: "Prompt Engineering", color: "#f1c40f" },
+        { x: 480, y: 340, w: 180, h: 70, text: "Llama API Integration", color: "#2ecc71" },
+        { x: 480, y: 440, w: 200, h: 70, text: "Response Generation", color: "#34495e" },
+        { x: 700, y: 340, w: 220, h: 70, text: "Results Dashboard & Templates", color: "#16a085" }
+      ];
+      
+      boxes.forEach(b => drawBox(ctx, b.x, b.y, b.w, b.h, b.text, b.color));
+      
+      drawArrow(ctx, 210, 85, 250, 85);            
+      drawArrow(ctx, 340, 100, 340, 140);           
+      drawArrow(ctx, 340, 180, 340, 240);           
+      drawArrow(ctx, 340, 310, 340, 340);           
+      drawArrow(ctx, 450, 310, 480, 310);           
+      drawArrow(ctx, 570, 390, 570, 340);           
+      drawArrow(ctx, 570, 410, 570, 440);           
+      drawArrow(ctx, 680, 390, 700, 390);           
+    })();
+    
+    (function drawUXWireframes() {
+      const canvas = document.getElementById('uxWireframe');
+      const ctx = canvas.getContext('2d');
+      const screens = [
+        { x: 30,  y: 50,  w: 180, h: 70, text: "Homepage", color: "#f39c12" },
+        { x: 250, y: 50,  w: 220, h: 70, text: "Sign Up / Login", color: "#d35400" },
+        { x: 500, y: 50,  w: 180, h: 70, text: "Dashboard", color: "#c0392b" },
+        { x: 100, y: 150, w: 220, h: 70, text: "New Email Generator", color: "#8e44ad" },
+        { x: 360, y: 150, w: 180, h: 70, text: "Template Selection", color: "#2980b9" },
+        { x: 560, y: 150, w: 220, h: 70, text: "Input Customizations", color: "#27ae60" },
+        { x: 360, y: 250, w: 220, h: 70, text: "Preview & Edit", color: "#16a085" },
+        { x: 360, y: 350, w: 220, h: 70, text: "Final Email Output", color: "#2c3e50" }
+      ];
+      
+      screens.forEach(s => drawBox(ctx, s.x, s.y, s.w, s.h, s.text, s.color));
+      
+      drawArrow(ctx, 210, 85, 250, 85);            
+      drawArrow(ctx, 470, 85, 500, 85);            
+      drawArrow(ctx, 390, 100, 390, 150);           
+      drawArrow(ctx, 450, 185, 500, 185);           
+      drawArrow(ctx, 650, 185, 680, 185);           
+      drawArrow(ctx, 440, 220, 440, 250);           
+      drawArrow(ctx, 440, 320, 440, 350);           
+    })();
+    
+    (function drawDataFlowChart() {
+      const canvas = document.getElementById('dataFlowChart');
+      const ctx = canvas.getContext('2d');
+      const steps = [
+        { x: 30,  y: 30,  w: 180, h: 70, text: "Data Collection", color: "#8e44ad" },
+        { x: 250, y: 30,  w: 180, h: 70, text: "User & Public Data", color: "#2980b9" },
+        { x: 470, y: 30,  w: 220, h: 70, text: "Data Cleaning & Normalization", color: "#27ae60" },
+        { x: 250, y: 130, w: 220, h: 70, text: "Bias Detection & Mitigation", color: "#c0392b" },
+        { x: 30,  y: 230, w: 180, h: 70, text: "Data Storage", color: "#f39c12" },
+        { x: 250, y: 230, w: 180, h: 70, text: "Prompt Engineering", color: "#d35400" },
+        { x: 470, y: 230, w: 220, h: 70, text: "Model Processing (Llama API)", color: "#16a085" },
+        { x: 250, y: 330, w: 220, h: 70, text: "Generated Content", color: "#34495e" },
+        { x: 250, y: 430, w: 220, h: 70, text: "Feedback Loop", color: "#2c3e50" }
+      ];
+      
+      steps.forEach(s => drawBox(ctx, s.x, s.y, s.w, s.h, s.text, s.color));
+      
+      drawArrow(ctx, 210, 65, 250, 65);
+      drawArrow(ctx, 430, 65, 470, 65);
+      drawArrow(ctx, 540, 80, 300, 135);   
+      drawArrow(ctx, 200, 135, 200, 230);
+      drawArrow(ctx, 200, 255, 250, 255);
+      drawArrow(ctx, 430, 255, 470, 255);
+      drawArrow(ctx, 540, 255, 300, 345);   
+      drawArrow(ctx, 300, 370, 300, 430);
+      drawArrow(ctx, 300, 480, 300, 260);   
+    })();
+  </script>
+</body>
+</html>
